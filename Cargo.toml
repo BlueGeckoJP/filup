@@ -1,0 +1,10 @@
+[package]
+name = "filup"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.7.5"
+once_cell = "1.19.0"
+tera = "1.20.0"
+tokio = { version = "1.39.3", features = ["full"] }
