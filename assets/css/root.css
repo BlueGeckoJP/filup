@@ -1,0 +1,55 @@
+header {
+  display: flex;
+  padding: 10px;
+  border-bottom: 2px solid var(--third-color);
+}
+
+header > h1 {
+  margin: 0;
+  margin-left: 20px;
+}
+
+body {
+  height: 100vh;
+}
+
+#top {
+  display: flex;
+  justify-content: center;
+}
+
+#upload-top {
+  width: 60%;
+}
+
+#upload-input-div {
+  display: flex;
+  align-items: center;
+}
+
+#upload-input-div label {
+  background-color: var(--first-color);
+  color: var(--second-color);
+  padding: 5px;
+}
+
+#upload-input-div input[type="file"] {
+  display: none;
+}
+
+#upload-input-div p {
+  margin-left: 10px;
+}
+
+#upload-button-div {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+#upload-button-div button {
+  background-color: var(--first-color);
+  color: var(--fourth-color);
+  width: 150px;
+  font-size: 16px;
+}

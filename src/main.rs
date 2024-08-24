@@ -1,14 +1,25 @@
+mod api;
 mod route;
 
+use api::*;
+use axum::{
+    http::StatusCode,
+    routing::{get, get_service, post},
+    Router,
+};
+use once_cell::sync::{Lazy, OnceCell};
+use route::*;
 use std::error::Error;
-
-use axum::{routing::get, Router};
-use once_cell::sync::OnceCell;
-use route::r_root::root;
 use tera::Tera;
 use tokio::{net::TcpListener, sync::Mutex};
+use tower_http::{
+    services::ServeDir,
+    trace::{self, TraceLayer},
+};
+use tracing::{event, instrument, Level};
 
 pub static TEMPLATES: Templates = Templates { t: OnceCell::new() };
+pub static SAVE_DIR: Lazy<String> = Lazy::new(|| String::from("./files"));
 
 pub struct Templates {
     t: OnceCell<Mutex<Tera>>,
@@ -32,12 +43,27 @@ impl Templates {
     }
 }
 
+#[instrument]
 #[tokio::main]
 async fn main() {
-    let app = Router::new().route("/", get(root));
+    tracing_subscriber::fmt().with_target(false).pretty().init();
 
     TEMPLATES.update().await.unwrap();
 
+    let assets_service = get_service(ServeDir::new("assets")).handle_error(|e| async move {
+        (StatusCode::NOT_FOUND, format!("asset not found: {}", e))
+    });
+    let app = Router::new()
+        .nest_service("/assets", assets_service)
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
+                .on_response(trace::DefaultOnResponse::new().level(Level::INFO)),
+        )
+        .route("/", get(r_root::root))
+        .route("/api/upload", post(a_upload::upload));
+
+    event!(Level::INFO, "Listening on 0.0.0.0:8080");
     let listener = TcpListener::bind("0.0.0.0:8080").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }

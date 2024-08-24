@@ -1,9 +1,37 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Test root page!</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FILUP Top Page</title>
+    <link href="assets/css/theme.css" rel="stylesheet" />
+    <link href="assets/css/root.css" rel="stylesheet" />
   </head>
   <body>
-    <p>This page is testing root page!</p>
+    <header>
+      <h1>FILUP</h1>
+    </header>
+    <div id="top">
+      <div id="upload-top" class="crossing-line-box">
+        <span class="box-title">UPLOAD</span>
+        <div id="upload-input-div">
+          <label class="white-corner-box">
+            <input
+              type="file"
+              id="fake-upload-input"
+              onchange="onChangeUploadFile()"
+            />
+            ファイルを選択
+          </label>
+          <p id="upload-filename">選択されていません</p>
+        </div>
+        <div id="upload-button-div">
+          <button class="white-corner-box" onclick="onClickUploadButton()">
+            アップロード
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="assets/javascript/root.js"></script>
   </body>
 </html>

@@ -1,0 +1,94 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap");
+
+* {
+  box-sizing: border-box;
+
+  font-family: "Open Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: normal;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+:root {
+  --first-color: #222831;
+  --second-color: #eeeeee;
+  --third-color: #31363f;
+  --fourth-color: #76abae;
+
+  background-color: var(--first-color);
+  color: var(--second-color);
+}
+
+html,
+body {
+  margin: 0;
+}
+
+.crossing-line-box {
+  margin: 2em 0;
+  position: relative;
+  padding: 0.5em 1.5em;
+  border-top: solid 2px var(--third-color);
+  border-bottom: solid 2px var(--third-color);
+}
+
+.crossing-line-box::before,
+.crossing-line-box::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  width: 2px;
+  height: calc(100% + 20px);
+  background-color: var(--third-color);
+}
+
+.crossing-line-box::before {
+  left: 10px;
+}
+
+.crossing-line-box::after {
+  right: 10px;
+}
+
+.crossing-line-box .box-title {
+  position: absolute;
+  display: inline-block;
+  top: -10px;
+  left: 20px;
+  padding: 0 7px;
+  line-height: 1;
+  font-size: 17px;
+  background: var(--first-color);
+  color: var(--second-color);
+  font-weight: bold;
+}
+
+.white-corner-box {
+  position: relative;
+  padding: 0.25em 1em;
+  border: 1px solid var(--third-color);
+}
+
+.white-corner-box::before,
+.white-corner-box::after {
+  content: "";
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  display: inline-block;
+}
+
+.white-corner-box::before {
+  border-left: 1px solid var(--second-color);
+  border-top: 1px solid var(--second-color);
+  top: 0;
+  left: 0;
+}
+
+.white-corner-box::after {
+  border-right: 1px solid var(--second-color);
+  border-bottom: 1px solid var(--second-color);
+  bottom: 0;
+  right: 0;
+}
