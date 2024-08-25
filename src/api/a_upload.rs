@@ -1,8 +1,5 @@
 use axum::{extract::Multipart, http::StatusCode};
-use tokio::{
-    fs::File,
-    io::{AsyncWriteExt, BufWriter},
-};
+use tokio::{fs::File, io::AsyncWriteExt};
 use tracing::{event, instrument, Level};
 
 use crate::SAVE_DIR;
@@ -17,11 +14,10 @@ pub async fn upload(mut multipart: Multipart) -> Result<(), StatusCode> {
         match field.bytes().await {
             Ok(data) => {
                 event!(Level::INFO, "Uploading {}, {}bytes", filename, data.len());
-                let file = File::create(format!("{}/{}", SAVE_DIR.clone(), filename))
+                let mut file = File::create(format!("{}/{}", SAVE_DIR.clone(), filename))
                     .await
                     .unwrap();
-                let mut writer = BufWriter::new(file);
-                writer.write_all(&data).await.unwrap();
+                file.write_all(&data).await.unwrap();
             }
             Err(e) => {
                 event!(

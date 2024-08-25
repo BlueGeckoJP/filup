@@ -3,15 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FILUP Top Page</title>
+    <title>FILUP</title>
     <link href="assets/css/theme.css" rel="stylesheet" />
     <link href="assets/css/root.css" rel="stylesheet" />
+    <link
+      href="https://use.fontawesome.com/releases/v6.6.0/css/all.css"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <header>
       <h1>FILUP</h1>
+      <nav>
+        <ul>
+          <li><a href="#upload-top">アップロード</a></li>
+          <li><a href="#list-top">ファイルリスト</a></li>
+        </ul>
+      </nav>
     </header>
     <div id="top">
+      <!-- Upload Field -->
       <div id="upload-top" class="crossing-line-box">
         <span class="box-title">UPLOAD</span>
         <div id="upload-input-div">
@@ -29,6 +40,31 @@
           <button class="white-corner-box" onclick="onClickUploadButton()">
             アップロード
           </button>
+        </div>
+      </div>
+      <!-- List Field -->
+      <div id="list-top" class="crossing-line-box">
+        <span class="box-title">FILE LIST</span>
+        <div id="file-list">
+          {% for file in file_list %}
+          <div class="item item-uuid">
+            <div class="item-buttons">
+              <button
+                class="item-download-button"
+                onclick="onClickDownloadButton('{{ file.path }}')"
+              >
+                <i class="fa-solid fa-download"></i>
+              </button>
+              <button
+                class="item-remove-button"
+                onclick="onClickRemoveButton(this)"
+              >
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+            <p class="item-filename">{{ file.filename }}</p>
+          </div>
+          {% endfor %}
         </div>
       </div>
     </div>

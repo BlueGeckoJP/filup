@@ -53,15 +53,20 @@ async fn main() {
     let assets_service = get_service(ServeDir::new("assets")).handle_error(|e| async move {
         (StatusCode::NOT_FOUND, format!("asset not found: {}", e))
     });
+    let files_service = get_service(ServeDir::new("files")).handle_error(|e| async move {
+        (StatusCode::NOT_FOUND, format!("files not found: {}", e))
+    });
     let app = Router::new()
         .nest_service("/assets", assets_service)
+        .nest_service("/files", files_service)
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
                 .on_response(trace::DefaultOnResponse::new().level(Level::INFO)),
         )
         .route("/", get(r_root::root))
-        .route("/api/upload", post(a_upload::upload));
+        .route("/api/upload", post(a_upload::upload))
+        .route("/api/remove", post(a_remove::remove));
 
     event!(Level::INFO, "Listening on 0.0.0.0:8080");
     let listener = TcpListener::bind("0.0.0.0:8080").await.unwrap();

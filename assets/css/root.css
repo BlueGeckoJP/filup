@@ -1,12 +1,31 @@
 header {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 10px;
   border-bottom: 2px solid var(--third-color);
 }
 
-header > h1 {
+header h1 {
   margin: 0;
   margin-left: 20px;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  margin: 0;
+
+  display: none;
+}
+
+nav ul li {
+  margin-left: 20px;
+}
+
+nav ul li a {
+  color: var(--second-color);
+  text-decoration: none;
 }
 
 body {
@@ -15,11 +34,12 @@ body {
 
 #top {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 #upload-top {
-  width: 60%;
+  width: 700px;
 }
 
 #upload-input-div {
@@ -52,4 +72,48 @@ body {
   color: var(--fourth-color);
   width: 150px;
   font-size: 16px;
+}
+
+#list-top {
+  width: 700px;
+}
+
+.item {
+  display: flex;
+  padding: 8px;
+  border-bottom: 1px solid var(--third-color);
+}
+
+.item:last-of-type {
+  border-bottom: none;
+}
+
+.item-buttons {
+  display: flex;
+}
+
+.item-download-button {
+  background-color: var(--first-color);
+  color: var(--fourth-color);
+  border: none;
+  outline: none;
+  appearance: none;
+}
+
+.item-remove-button {
+  background-color: var(--first-color);
+  color: var(--fourth-color);
+  border: none;
+  outline: none;
+  appearance: none;
+}
+
+.item-filename {
+  margin: 0;
+  margin-left: 5px;
+}
+
+#notfound-msg {
+  display: block;
+  text-align: center;
 }
