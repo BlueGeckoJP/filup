@@ -3,6 +3,7 @@ mod route;
 
 use api::*;
 use axum::{
+    extract::DefaultBodyLimit,
     http::StatusCode,
     routing::{get, get_service, post},
     Router,
@@ -64,6 +65,7 @@ async fn main() {
                 .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
                 .on_response(trace::DefaultOnResponse::new().level(Level::INFO)),
         )
+        .layer(DefaultBodyLimit::max(1024 * 1024 * 1024 * 10)) // 10 GiB (tabun)
         .route("/", get(r_root::root))
         .route("/api/upload", post(a_upload::upload))
         .route("/api/remove", post(a_remove::remove));
