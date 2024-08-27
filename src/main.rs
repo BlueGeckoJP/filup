@@ -8,6 +8,7 @@ use axum::{
     routing::{get, get_service, post},
     Router,
 };
+use clap::Parser;
 use once_cell::sync::{Lazy, OnceCell};
 use route::*;
 use std::error::Error;
@@ -21,6 +22,13 @@ use tracing::{event, instrument, Level};
 
 pub static TEMPLATES: Templates = Templates { t: OnceCell::new() };
 pub static SAVE_DIR: Lazy<String> = Lazy::new(|| String::from("./files"));
+
+#[derive(Debug, Parser)]
+#[command(author, version, about, long_about=None)]
+struct Args {
+    #[arg(short, long, default_value_t = 8080)]
+    port: u16,
+}
 
 pub struct Templates {
     t: OnceCell<Mutex<Tera>>,
@@ -51,6 +59,9 @@ async fn main() {
 
     TEMPLATES.update().await.unwrap();
 
+    let args = Args::parse();
+    event!(Level::INFO, "The following args were received: {:?}", args);
+
     let assets_service = get_service(ServeDir::new("assets")).handle_error(|e| async move {
         (StatusCode::NOT_FOUND, format!("asset not found: {}", e))
     });
@@ -70,7 +81,9 @@ async fn main() {
         .route("/api/upload", post(a_upload::upload))
         .route("/api/remove", post(a_remove::remove));
 
-    event!(Level::INFO, "Listening on 0.0.0.0:8080");
-    let listener = TcpListener::bind("0.0.0.0:8080").await.unwrap();
+    event!(Level::INFO, "Listening on 0.0.0.0:{}", args.port);
+    let listener = TcpListener::bind(format!("0.0.0.0:{}", args.port))
+        .await
+        .unwrap();
     axum::serve(listener, app).await.unwrap();
 }
