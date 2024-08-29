@@ -1,0 +1,16 @@
+{
+  "name": "filup",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "build": "tsc -p ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  },
+  "private": "true"
+}

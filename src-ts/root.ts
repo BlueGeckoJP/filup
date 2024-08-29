@@ -1,5 +1,8 @@
 function onClickUploadButton() {
-  const file = document.getElementById("fake-upload-input").files[0];
+  const fakeUploadInput = document.getElementById(
+    "fake-upload-input"
+  ) as HTMLInputElement;
+  const file = fakeUploadInput.files![0];
   const formData = new FormData();
   formData.append("file", file);
   const action = "/api/upload";
@@ -18,22 +21,24 @@ function onClickUploadButton() {
 }
 
 function onChangeUploadFile() {
-  const uploadInput = document.getElementById("fake-upload-input");
+  const uploadInput = document.getElementById(
+    "fake-upload-input"
+  ) as HTMLInputElement;
   const uploadFilename = document.getElementById("upload-filename");
-  uploadFilename.innerHTML = uploadInput.files[0].name;
+  uploadFilename!.innerHTML = uploadInput.files![0].name;
 }
 
-function onClickDownloadButton(filepath) {
+function onClickDownloadButton(filepath: string) {
   let element = document.createElement("a");
   element.href = filepath;
   element.download = "";
   element.click();
 }
 
-function onClickRemoveButton(element) {
+function onClickRemoveButton(element: HTMLElement) {
   if (confirm("Are you sure you want to delete this file?")) {
-    const parentId = element.parentNode.parentNode.id;
-    const filename = document.querySelector(`#${parentId} p`).innerHTML;
+    const parentId = (element.parentNode!.parentNode as HTMLElement).id;
+    const filename = document.querySelector(`#${parentId} p`)!.innerHTML;
     fetch("/api/remove", {
       method: "POST",
       body: filename,
@@ -50,18 +55,20 @@ function onClickRemoveButton(element) {
   document.location.reload();
 }
 
-function uploadDropHandler(event) {
+function uploadDropHandler(event: DragEvent) {
   event.preventDefault();
 
-  const fakeUploadInput = document.getElementById("fake-upload-input");
-  const files = event.dataTransfer.files;
+  const fakeUploadInput = document.getElementById(
+    "fake-upload-input"
+  ) as HTMLInputElement;
+  const files = event.dataTransfer!.files;
 
   console.log(`Dropped file: ${files[0].name}`);
   fakeUploadInput.files = files;
   onChangeUploadFile();
 }
 
-function uploadDropOverHandler(event) {
+function uploadDropOverHandler(event: DragEvent) {
   event.preventDefault();
 }
 
@@ -73,7 +80,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     element.id = `item-${uuid}`;
   });
 
-  const fileList = document.getElementById("file-list");
+  const fileList = document.getElementById("file-list") as HTMLElement;
   if (fileList.children.length === 0) {
     let element = document.createElement("p");
     element.innerHTML = "ファイルはありません";
