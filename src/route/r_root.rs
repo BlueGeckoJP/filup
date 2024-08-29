@@ -14,18 +14,11 @@ struct FileItem {
 pub async fn root() -> Html<String> {
     let mut entries = fs::read_dir("./files").await.unwrap();
     let mut file_list_vec: Vec<FileItem> = vec![];
-    loop {
-        if let Some(file) = entries.next_entry().await.unwrap() {
-            let filename = file.file_name().to_string_lossy().to_string();
-            let path = format!("/files/{}", filename);
-            let item = FileItem {
-                filename: filename,
-                path: path,
-            };
-            file_list_vec.push(item);
-        } else {
-            break;
-        }
+    while let Some(file) = entries.next_entry().await.unwrap() {
+        let filename = file.file_name().to_string_lossy().to_string();
+        let path = format!("/files/{}", filename);
+        let item = FileItem { filename, path };
+        file_list_vec.push(item);
     }
 
     let mut context = Context::new();
