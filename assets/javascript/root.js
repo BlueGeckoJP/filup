@@ -50,6 +50,21 @@ function onClickRemoveButton(element) {
   document.location.reload();
 }
 
+function uploadDropHandler(event) {
+  event.preventDefault();
+
+  const fakeUploadInput = document.getElementById("fake-upload-input");
+  const files = event.dataTransfer.files;
+
+  console.log(`Dropped file: ${files[0].name}`);
+  fakeUploadInput.files = files;
+  onChangeUploadFile();
+}
+
+function uploadDropOverHandler(event) {
+  event.preventDefault();
+}
+
 document.addEventListener("DOMContentLoaded", (event) => {
   const elements = document.querySelectorAll(".item-uuid");
 

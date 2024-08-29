@@ -42,6 +42,15 @@ body {
   width: 700px;
 }
 
+#upload-drag-and-drop-div {
+  border: 1px solid var(--second-color);
+  margin-top: 10px;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 #upload-input-div {
   display: flex;
   align-items: center;

@@ -25,6 +25,13 @@
       <!-- Upload Field -->
       <div id="upload-top" class="crossing-line-box">
         <span class="box-title">UPLOAD</span>
+        <div
+          id="upload-drag-and-drop-div"
+          ondrop="uploadDropHandler(event);"
+          ondragover="uploadDropOverHandler(event);"
+        >
+          <p>ここにファイルを ドラッグアンドドロップ してください</p>
+        </div>
         <div id="upload-input-div">
           <label class="white-corner-box">
             <input
