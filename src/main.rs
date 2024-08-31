@@ -11,7 +11,7 @@ use axum::{
 use clap::Parser;
 use once_cell::sync::{Lazy, OnceCell};
 use route::*;
-use std::error::Error;
+use std::{error::Error, fs, path::Path};
 use tera::Tera;
 use tokio::{net::TcpListener, sync::Mutex};
 use tower_http::{
@@ -52,6 +52,18 @@ impl Templates {
     }
 }
 
+async fn check_dir_exists() -> Result<(), Box<dyn Error>> {
+    let save_dir = SAVE_DIR.clone();
+    if !Path::new(&save_dir).exists() {
+        if let Err(e) = fs::create_dir(&save_dir) {
+            return Err(Box::new(e));
+        }
+        event!(Level::INFO, "mkdir SAVE_DIR ({})", save_dir);
+    }
+    event!(Level::INFO, "check_dir_exists() completed!");
+    Ok(())
+}
+
 #[instrument]
 #[tokio::main]
 async fn main() {
@@ -61,6 +73,8 @@ async fn main() {
 
     let args = Args::parse();
     event!(Level::INFO, "The following args were received: {:?}", args);
+
+    check_dir_exists().await.unwrap();
 
     let assets_service = get_service(ServeDir::new("assets")).handle_error(|e| async move {
         (StatusCode::NOT_FOUND, format!("asset not found: {}", e))
