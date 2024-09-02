@@ -13,7 +13,13 @@ use once_cell::sync::{Lazy, OnceCell};
 use route::*;
 use std::{error::Error, fs, path::Path};
 use tera::Tera;
-use tokio::{net::TcpListener, sync::Mutex};
+use tokio::{
+    net::TcpListener,
+    sync::{
+        broadcast::{self, Receiver, Sender},
+        Mutex,
+    },
+};
 use tower_http::{
     services::ServeDir,
     trace::{self, TraceLayer},
@@ -22,6 +28,7 @@ use tracing::{event, instrument, Level};
 
 pub static TEMPLATES: Templates = Templates { t: OnceCell::new() };
 pub static SAVE_DIR: Lazy<String> = Lazy::new(|| String::from("./files"));
+pub static PROGRESS_CONTAINER: OnceCell<ProgressContainer> = OnceCell::new();
 
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about=None)]
@@ -52,6 +59,22 @@ impl Templates {
     }
 }
 
+#[derive(Debug)]
+pub struct ProgressContainer {
+    tx: Mutex<Sender<usize>>,
+    _rx: Mutex<Receiver<usize>>,
+}
+
+impl ProgressContainer {
+    async fn new() -> ProgressContainer {
+        let (tx, rx) = broadcast::channel::<usize>(16);
+        ProgressContainer {
+            tx: Mutex::new(tx),
+            _rx: Mutex::new(rx),
+        }
+    }
+}
+
 async fn check_dir_exists() -> Result<(), Box<dyn Error>> {
     let save_dir = SAVE_DIR.clone();
     if !Path::new(&save_dir).exists() {
@@ -70,6 +93,9 @@ async fn main() {
     tracing_subscriber::fmt().with_target(false).pretty().init();
 
     TEMPLATES.update().await.unwrap();
+    PROGRESS_CONTAINER
+        .set(ProgressContainer::new().await)
+        .unwrap();
 
     let args = Args::parse();
     event!(Level::INFO, "The following args were received: {:?}", args);
@@ -88,6 +114,7 @@ async fn main() {
         .route("/", get(route_root::root))
         .route("/api/upload", post(api_upload::upload))
         .route("/api/remove", post(api_remove::remove))
+        .route("/api/progress", get(api_progress::progress))
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))

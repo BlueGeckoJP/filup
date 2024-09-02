@@ -87,4 +87,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
     element.id = "notfound-msg";
     fileList.appendChild(element);
   }
+
+  const eventSource = new EventSource("/api/progress");
+  eventSource.addEventListener("message", (event) => {
+    console.log(event.data);
+  });
 });
