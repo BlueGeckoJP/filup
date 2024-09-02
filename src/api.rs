@@ -1,2 +1,2 @@
-pub mod a_remove;
-pub mod a_upload;
+pub mod api_remove;
+pub mod api_upload;

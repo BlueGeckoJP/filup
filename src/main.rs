@@ -85,9 +85,9 @@ async fn main() {
     let app = Router::new()
         .nest_service("/assets", assets_service)
         .nest_service("/files", files_service)
-        .route("/", get(r_root::root))
-        .route("/api/upload", post(a_upload::upload))
-        .route("/api/remove", post(a_remove::remove))
+        .route("/", get(route_root::root))
+        .route("/api/upload", post(api_upload::upload))
+        .route("/api/remove", post(api_remove::remove))
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
