@@ -70,8 +70,48 @@ body {
   margin-left: 10px;
 }
 
+#upload-button-progress-div {
+  margin-top: 0;
+  display: flex;
+}
+
+#upload-progress-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  margin-right: 15px;
+}
+
+#upload-progress-div p {
+  text-align: center;
+  margin: 0;
+  width: 75px;
+  font-size: larger;
+}
+
+#progress-bar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  padding: 0 5px;
+  height: 30px;
+  background-color: var(--third-color);
+  width: 100%;
+  margin-left: 10px;
+  border-radius: 100px;
+}
+
+#progress-bar-inner {
+  height: 20px;
+  width: 0;
+  background-color: var(--second-color);
+  border-radius: 100px;
+  box-shadow: 0 10px 40px -10px var(--second-color);
+}
+
 #upload-button-div {
-  margin-top: 10px;
   display: flex;
   justify-content: flex-end;
 }
@@ -125,20 +165,4 @@ body {
 #notfound-msg {
   display: block;
   text-align: center;
-}
-
-#progress-bar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 200px;
-  height: 200px;
-  position: fixed;
-  bottom: 0;
-  right: 0;
-}
-
-#progress-bar p {
-  margin: 0;
-  font-size: large;
 }

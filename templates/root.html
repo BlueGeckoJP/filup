@@ -43,10 +43,18 @@
           </label>
           <p id="upload-filename">選択されていません</p>
         </div>
-        <div id="upload-button-div">
-          <button class="white-corner-box" onclick="onClickUploadButton()">
-            アップロード
-          </button>
+        <div id="upload-button-progress-div">
+          <div id="upload-progress-div">
+            <p>0%</p>
+            <div id="progress-bar">
+              <div id="progress-bar-inner"></div>
+            </div>
+          </div>
+          <div id="upload-button-div">
+            <button class="white-corner-box" onclick="onClickUploadButton()">
+              アップロード
+            </button>
+          </div>
         </div>
       </div>
       <!-- List Field -->
@@ -73,10 +81,6 @@
           </div>
           {% endfor %}
         </div>
-      </div>
-      <!-- Prototype Progress Bar -->
-      <div id="progress-bar">
-        <p>0 / 0</p>
       </div>
     </div>
     <script src="assets/javascript/root.js"></script>

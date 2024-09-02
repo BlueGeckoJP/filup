@@ -1,7 +1,11 @@
 "use strict";
+let fileSize = 0;
+let totalSize = 0;
+let totalSizePercent = 0.0;
 function onClickUploadButton() {
     const fakeUploadInput = document.getElementById("fake-upload-input");
     const file = fakeUploadInput.files[0];
+    fileSize = file.size;
     const formData = new FormData();
     formData.append("file", file);
     const action = "/api/upload";
@@ -73,15 +77,17 @@ document.addEventListener("DOMContentLoaded", (event) => {
         fileList.appendChild(element);
     }
     const eventSource = new EventSource("/api/progress");
-    const progressBarText = document.querySelector("#progress-bar p");
-    let totalSize = 0;
+    const progressBarText = document.querySelector("#upload-progress-div p");
+    const progressBar = document.getElementById("progress-bar-inner");
     eventSource.addEventListener("message", (event) => {
-        const fakeUploadInput = document.getElementById("fake-upload-input");
-        const fileSize = fakeUploadInput.files[0].size;
         totalSize += Number(event.data);
-        progressBarText.innerHTML = `${totalSize} / ${fileSize}`;
+        totalSizePercent = Number(((totalSize / fileSize) * 100).toFixed(1));
+        progressBarText.innerHTML = `${totalSizePercent}%`;
+        progressBar.style.width = `${totalSizePercent}%`;
     });
     eventSource.addEventListener("open", (event) => {
         totalSize = 0;
+        totalSizePercent = 0;
+        progressBar.style.width = `0`;
     });
 });
