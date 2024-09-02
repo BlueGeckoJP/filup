@@ -73,7 +73,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
         fileList.appendChild(element);
     }
     const eventSource = new EventSource("/api/progress");
+    const progressBarText = document.querySelector("#progress-bar p");
+    let totalSize = 0;
     eventSource.addEventListener("message", (event) => {
-        console.log(event.data);
+        const fakeUploadInput = document.getElementById("fake-upload-input");
+        const fileSize = fakeUploadInput.files[0].size;
+        totalSize += Number(event.data);
+        progressBarText.innerHTML = `${totalSize} / ${fileSize}`;
+    });
+    eventSource.addEventListener("open", (event) => {
+        totalSize = 0;
     });
 });

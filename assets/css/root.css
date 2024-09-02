@@ -126,3 +126,19 @@ body {
   display: block;
   text-align: center;
 }
+
+#progress-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 200px;
+  height: 200px;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+}
+
+#progress-bar p {
+  margin: 0;
+  font-size: large;
+}
