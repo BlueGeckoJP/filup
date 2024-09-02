@@ -13,7 +13,7 @@ pub async fn upload(mut multipart: Multipart) -> Result<(), StatusCode> {
             Some(name) => name.to_owned(),
             None => return Err(StatusCode::BAD_REQUEST),
         };
-        event!(Level::INFO, "Start receive {}", filename);
+        event!(Level::INFO, "Starting upload: {}", filename);
 
         let mut file = File::create(format!("{}/{}", SAVE_DIR.clone(), filename))
             .await
@@ -23,6 +23,7 @@ pub async fn upload(mut multipart: Multipart) -> Result<(), StatusCode> {
             file.write_all(&chunk).await.unwrap();
             tx.send(chunk.len()).unwrap();
         }
+        event!(Level::INFO, "Finished upload: {}", filename);
     }
     Ok(())
 }

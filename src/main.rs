@@ -81,16 +81,23 @@ async fn check_dir_exists() -> Result<(), Box<dyn Error>> {
         if let Err(e) = fs::create_dir(&save_dir) {
             return Err(Box::new(e));
         }
-        event!(Level::INFO, "mkdir SAVE_DIR ({})", save_dir);
+        event!(
+            Level::INFO,
+            "SAVE_DIR ({}) was not found!, Created a new one",
+            save_dir
+        );
     }
-    event!(Level::INFO, "check_dir_exists() completed!");
+    event!(Level::INFO, "Directory exists check complete!");
     Ok(())
 }
 
 #[instrument]
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt().with_target(false).pretty().init();
+    tracing_subscriber::fmt()
+        .with_target(false)
+        .compact()
+        .init();
 
     TEMPLATES.update().await.unwrap();
     PROGRESS_CONTAINER
