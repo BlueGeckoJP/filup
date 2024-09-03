@@ -2,7 +2,6 @@ use axum::response::Html;
 use serde::Serialize;
 use tera::Context;
 use tokio::fs;
-use uuid::Uuid;
 
 use crate::TEMPLATES;
 
@@ -10,7 +9,6 @@ use crate::TEMPLATES;
 struct FileItem {
     filename: String,
     path: String,
-    uuid: String,
 }
 
 pub async fn root() -> Html<String> {
@@ -19,12 +17,7 @@ pub async fn root() -> Html<String> {
     while let Some(file) = entries.next_entry().await.unwrap() {
         let filename = file.file_name().to_string_lossy().to_string();
         let path = format!("/files/{}", filename);
-        let uuid = Uuid::new_v4().to_string();
-        let item = FileItem {
-            filename,
-            path,
-            uuid,
-        };
+        let item = FileItem { filename, path };
         file_list_vec.push(item);
     }
 

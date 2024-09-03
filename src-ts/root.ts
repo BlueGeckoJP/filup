@@ -43,7 +43,9 @@ function onClickDownloadButton(filepath: string) {
 function onClickRemoveButton(element: HTMLElement) {
   if (confirm("Are you sure you want to delete this file?")) {
     const parentId = (element.parentNode!.parentNode as HTMLElement).id;
-    const filename = document.querySelector(`#${parentId} p`)!.innerHTML;
+    const filename = document.querySelector(
+      `#${parentId} .item-filename`
+    )!.innerHTML;
     fetch("/api/remove", {
       method: "POST",
       body: filename,
@@ -54,10 +56,9 @@ function onClickRemoveButton(element: HTMLElement) {
       } else {
         alert("An error occurred during remove file");
       }
+      document.location.reload();
     });
   }
-
-  document.location.reload();
 }
 
 function uploadDropHandler(event: DragEvent) {
@@ -78,6 +79,13 @@ function uploadDropOverHandler(event: DragEvent) {
 }
 
 document.addEventListener("DOMContentLoaded", (event) => {
+  let items = document.querySelectorAll(".item");
+  let itemIdCount = 0;
+  items.forEach((item) => {
+    item.id = `item-${itemIdCount.toString()}`;
+    itemIdCount++;
+  });
+
   const fileList = document.getElementById("file-list") as HTMLElement;
   if (fileList.children.length === 0) {
     let element = document.createElement("p");
