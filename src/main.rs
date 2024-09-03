@@ -11,12 +11,12 @@ use axum::{
 use clap::Parser;
 use once_cell::sync::{Lazy, OnceCell};
 use route::*;
-use std::{error::Error, fs, path::Path};
+use std::{collections::HashMap, error::Error, fs, path::Path};
 use tera::Tera;
 use tokio::{
     net::TcpListener,
     sync::{
-        broadcast::{self, Receiver, Sender},
+        broadcast::{Receiver, Sender},
         Mutex,
     },
 };
@@ -26,9 +26,11 @@ use tower_http::{
 };
 use tracing::{event, instrument, Level};
 
+pub type ProgChListType = OnceCell<Mutex<HashMap<String, (Sender<usize>, Receiver<usize>)>>>;
+
 pub static TEMPLATES: Templates = Templates { t: OnceCell::new() };
 pub static SAVE_DIR: Lazy<String> = Lazy::new(|| String::from("./files"));
-pub static PROGRESS_CONTAINER: OnceCell<ProgressContainer> = OnceCell::new();
+pub static PROG_CH_LIST: ProgChListType = OnceCell::new();
 
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about=None)]
@@ -59,22 +61,6 @@ impl Templates {
     }
 }
 
-#[derive(Debug)]
-pub struct ProgressContainer {
-    tx: Mutex<Sender<usize>>,
-    _rx: Mutex<Receiver<usize>>,
-}
-
-impl ProgressContainer {
-    async fn new() -> ProgressContainer {
-        let (tx, rx) = broadcast::channel::<usize>(16);
-        ProgressContainer {
-            tx: Mutex::new(tx),
-            _rx: Mutex::new(rx),
-        }
-    }
-}
-
 async fn check_dir_exists() -> Result<(), Box<dyn Error>> {
     let save_dir = SAVE_DIR.clone();
     if !Path::new(&save_dir).exists() {
@@ -100,9 +86,7 @@ async fn main() {
         .init();
 
     TEMPLATES.update().await.unwrap();
-    PROGRESS_CONTAINER
-        .set(ProgressContainer::new().await)
-        .unwrap();
+    PROG_CH_LIST.set(Mutex::new(HashMap::new())).unwrap();
 
     let args = Args::parse();
     event!(Level::INFO, "The following args were received: {:?}", args);
