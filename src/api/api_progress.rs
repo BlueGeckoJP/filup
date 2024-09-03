@@ -8,6 +8,7 @@ use futures_util::stream::Stream;
 use serde::Deserialize;
 use tokio::sync::broadcast::{self};
 use tokio_stream::{wrappers::BroadcastStream, StreamExt as _};
+use tracing::{event, Level};
 
 use crate::PROG_CH_LIST;
 
@@ -27,8 +28,13 @@ pub async fn progress(
             .unwrap()
             .lock()
             .await
-            .insert(filename.filename, (original_tx, original_rx));
+            .insert(filename.filename.clone(), (original_tx, original_rx));
     }
+    event!(
+        Level::INFO,
+        "RX | Waiting for Upload API: {}",
+        filename.filename
+    );
 
     let stream = BroadcastStream::new(rx)
         .timeout(Duration::from_secs(10))

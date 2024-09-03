@@ -20,6 +20,11 @@ pub async fn upload(mut multipart: Multipart) -> Result<(), StatusCode> {
             let original_tx = &item.0;
             tx = original_tx.clone();
         }
+        event!(
+            Level::INFO,
+            "TX | Connected to Progress API: {}",
+            encoded_filename
+        );
 
         event!(Level::INFO, "Starting upload: {}", filename);
 
