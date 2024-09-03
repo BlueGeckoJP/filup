@@ -9,24 +9,13 @@ function onClickUploadButton() {
   let fileName = file.name;
   let fileSize = file.size;
 
-  const formData = new FormData();
-  formData.append("file", file);
-  const action = "/api/upload";
-  const options = {
-    method: "POST",
-    body: formData,
-  };
-  fetch(action, options).then((e) => {
-    if (e.status === 200) {
-      alert("Upload complete!");
-      document.location.reload();
-      return;
-    }
-    alert("An error occurred during upload");
-  });
-
+  // URL SAFE BASE64
+  const encodedFileName = btoa(fileName)
+    .replace(/=/g, "")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
   const eventSource = new EventSource(
-    `/api/progress?filename=${btoa(fileName)}`
+    `/api/progress?filename=${encodedFileName}`
   );
   const progressBarText = document.querySelector(
     "#upload-progress-div p"
@@ -39,6 +28,23 @@ function onClickUploadButton() {
     totalSizePercent = Number(((totalSize / fileSize) * 100).toFixed(1));
     progressBarText.innerHTML = `${totalSizePercent}%`;
     progressBar.style.width = `${totalSizePercent}%`;
+  });
+
+  const formData = new FormData();
+  formData.append("file", file);
+  const action = "/api/upload";
+  const options = {
+    method: "POST",
+    body: formData,
+  };
+  fetch(action, options).then((e) => {
+    if (e.status === 200) {
+      alert("Upload complete!");
+      eventSource.close();
+      document.location.reload();
+      return;
+    }
+    alert("An error occurred during upload");
   });
 }
 

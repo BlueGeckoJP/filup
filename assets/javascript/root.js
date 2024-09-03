@@ -6,6 +6,20 @@ function onClickUploadButton() {
     const file = fakeUploadInput.files[0];
     let fileName = file.name;
     let fileSize = file.size;
+    // URL SAFE BASE64
+    const encodedFileName = btoa(fileName)
+        .replace(/=/g, "")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_");
+    const eventSource = new EventSource(`/api/progress?filename=${encodedFileName}`);
+    const progressBarText = document.querySelector("#upload-progress-div p");
+    const progressBar = document.getElementById("progress-bar-inner");
+    eventSource.addEventListener("message", (event) => {
+        totalSize += Number(event.data);
+        totalSizePercent = Number(((totalSize / fileSize) * 100).toFixed(1));
+        progressBarText.innerHTML = `${totalSizePercent}%`;
+        progressBar.style.width = `${totalSizePercent}%`;
+    });
     const formData = new FormData();
     formData.append("file", file);
     const action = "/api/upload";
@@ -16,19 +30,11 @@ function onClickUploadButton() {
     fetch(action, options).then((e) => {
         if (e.status === 200) {
             alert("Upload complete!");
+            eventSource.close();
             document.location.reload();
             return;
         }
         alert("An error occurred during upload");
-    });
-    const eventSource = new EventSource(`/api/progress?filename=${btoa(fileName)}`);
-    const progressBarText = document.querySelector("#upload-progress-div p");
-    const progressBar = document.getElementById("progress-bar-inner");
-    eventSource.addEventListener("message", (event) => {
-        totalSize += Number(event.data);
-        totalSizePercent = Number(((totalSize / fileSize) * 100).toFixed(1));
-        progressBarText.innerHTML = `${totalSizePercent}%`;
-        progressBar.style.width = `${totalSizePercent}%`;
     });
 }
 function onChangeUploadFile() {
