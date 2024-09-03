@@ -127,7 +127,7 @@ async fn main() {
                 .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
                 .on_response(trace::DefaultOnResponse::new().level(Level::INFO)),
         )
-        .layer(DefaultBodyLimit::max(1024 * 1024 * 1024 * 10)); // 10 GiB (tabun)
+        .layer(DefaultBodyLimit::max(1024 * 1024 * 1024 * 100)); // 100 GiB (tabun)
 
     event!(Level::INFO, "Listening on 0.0.0.0:{}", args.port);
     let listener = TcpListener::bind(format!("0.0.0.0:{}", args.port))

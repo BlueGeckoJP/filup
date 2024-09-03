@@ -78,13 +78,6 @@ function uploadDropOverHandler(event: DragEvent) {
 }
 
 document.addEventListener("DOMContentLoaded", (event) => {
-  const elements = document.querySelectorAll(".item-uuid");
-
-  elements.forEach((element) => {
-    const uuid = self.crypto.randomUUID();
-    element.id = `item-${uuid}`;
-  });
-
   const fileList = document.getElementById("file-list") as HTMLElement;
   if (fileList.children.length === 0) {
     let element = document.createElement("p");
