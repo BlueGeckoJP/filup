@@ -1,11 +1,25 @@
 "use strict";
-let fileSize = 0;
-let totalSize = 0;
-let totalSizePercent = 0.0;
 function onClickUploadButton() {
+    let totalSize = 0;
+    let totalSizePercent = 0.0;
     const fakeUploadInput = document.getElementById("fake-upload-input");
     const file = fakeUploadInput.files[0];
-    fileSize = file.size;
+    let fileName = file.name;
+    let fileSize = file.size;
+    // URL SAFE BASE64
+    const encodedFileName = btoa(fileName)
+        .replace(/=/g, "")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_");
+    const eventSource = new EventSource(`/api/progress?filename=${encodedFileName}`);
+    const progressBarText = document.querySelector("#upload-progress-div p");
+    const progressBar = document.getElementById("progress-bar-inner");
+    eventSource.addEventListener("message", (event) => {
+        totalSize += Number(event.data);
+        totalSizePercent = Number(((totalSize / fileSize) * 100).toFixed(1));
+        progressBarText.innerHTML = `${totalSizePercent}%`;
+        progressBar.style.width = `${totalSizePercent}%`;
+    });
     const formData = new FormData();
     formData.append("file", file);
     const action = "/api/upload";
@@ -16,6 +30,7 @@ function onClickUploadButton() {
     fetch(action, options).then((e) => {
         if (e.status === 200) {
             alert("Upload complete!");
+            eventSource.close();
             document.location.reload();
             return;
         }
@@ -77,18 +92,4 @@ document.addEventListener("DOMContentLoaded", (event) => {
         element.id = "notfound-msg";
         fileList.appendChild(element);
     }
-    const eventSource = new EventSource("/api/progress");
-    const progressBarText = document.querySelector("#upload-progress-div p");
-    const progressBar = document.getElementById("progress-bar-inner");
-    eventSource.addEventListener("message", (event) => {
-        totalSize += Number(event.data);
-        totalSizePercent = Number(((totalSize / fileSize) * 100).toFixed(1));
-        progressBarText.innerHTML = `${totalSizePercent}%`;
-        progressBar.style.width = `${totalSizePercent}%`;
-    });
-    eventSource.addEventListener("open", (event) => {
-        totalSize = 0;
-        totalSizePercent = 0;
-        progressBar.style.width = `0`;
-    });
 });
