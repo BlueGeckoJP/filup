@@ -56,6 +56,43 @@ function onChangeUploadFile() {
   uploadFilename!.innerHTML = uploadInput.files![0].name;
 }
 
+function onClickOpenButton(element: HTMLElement) {
+  const parentId = (element.parentNode!.parentNode!.parentNode as HTMLElement)
+    .id;
+  let itemBottomContainer = document.querySelector(
+    `#${parentId} #item-bottom-container`
+  ) as HTMLElement;
+
+  if (itemBottomContainer.style.height !== "auto") {
+    const filename = document.querySelector(
+      `#${parentId} .item-filename`
+    )!.innerHTML;
+    let itemFilesize = document.querySelector(
+      `#${parentId} #item-filesize`
+    ) as HTMLElement;
+    let itemCreationTime = document.querySelector(
+      `#${parentId} #item-creation-time`
+    ) as HTMLElement;
+
+    if (itemFilesize.innerHTML === "" && itemCreationTime.innerHTML === "") {
+      fetch("/api/details", {
+        method: "POST",
+        body: filename,
+      })
+        .then((e) => e.json())
+        .then((data) => {
+          itemFilesize.innerHTML = data.size;
+          itemCreationTime.innerHTML = data.creation_time;
+          itemBottomContainer.style.height = "auto";
+        });
+    } else {
+      itemBottomContainer.style.height = "auto";
+    }
+  } else {
+    itemBottomContainer.style.height = "0";
+  }
+}
+
 function onClickDownloadButton(filepath: string) {
   let element = document.createElement("a");
   element.href = filepath;
@@ -65,7 +102,8 @@ function onClickDownloadButton(filepath: string) {
 
 function onClickRemoveButton(element: HTMLElement) {
   if (confirm("Are you sure you want to delete this file?")) {
-    const parentId = (element.parentNode!.parentNode as HTMLElement).id;
+    const parentId = (element.parentNode!.parentNode!.parentNode as HTMLElement)
+      .id;
     const filename = document.querySelector(
       `#${parentId} .item-filename`
     )!.innerHTML;

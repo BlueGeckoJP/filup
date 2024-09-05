@@ -63,21 +63,41 @@
         <div id="file-list">
           {% for file in file_list %}
           <div class="item">
-            <div class="item-buttons">
-              <button
-                class="item-download-button"
-                onclick="onClickDownloadButton('{{ file.path }}')"
-              >
-                <i class="fa-solid fa-download"></i>
-              </button>
-              <button
-                class="item-remove-button"
-                onclick="onClickRemoveButton(this)"
-              >
-                <i class="fa-solid fa-trash"></i>
-              </button>
+            <div id="item-top-container">
+              <div class="item-buttons">
+                <button
+                  class="item-open-button"
+                  onclick="onClickOpenButton(this)"
+                >
+                  <i class="fa-solid fa-caret-down"></i>
+                </button>
+                <button
+                  class="item-download-button"
+                  onclick="onClickDownloadButton('{{ file.path }}')"
+                >
+                  <i class="fa-solid fa-download"></i>
+                </button>
+                <button
+                  class="item-remove-button"
+                  onclick="onClickRemoveButton(this)"
+                >
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+              <p class="item-filename">{{ file.filename }}</p>
             </div>
-            <p class="item-filename">{{ file.filename }}</p>
+            <div id="item-bottom-container">
+              <table id="item-details-table">
+                <tr>
+                  <td class="item-details-desc"><p>ファイルサイズ</p></td>
+                  <td><p id="item-filesize" class="item-details"></p></td>
+                </tr>
+                <tr>
+                  <td class="item-details-desc"><p>作成日時</p></td>
+                  <td><p id="item-creation-time" class="item-details"></p></td>
+                </tr>
+              </table>
+            </div>
           </div>
           {% endfor %}
         </div>
