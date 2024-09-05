@@ -9,9 +9,8 @@ use axum::{
     Router,
 };
 use clap::Parser;
-use once_cell::sync::{Lazy, OnceCell};
 use route::*;
-use std::{collections::HashMap, error::Error, fs, path::Path};
+use std::{collections::HashMap, error::Error, fs, path::Path, sync::Arc};
 use tera::Tera;
 use tokio::{
     net::TcpListener,
@@ -26,11 +25,20 @@ use tower_http::{
 };
 use tracing::{event, instrument, Level};
 
-pub type ProgChListType = OnceCell<Mutex<HashMap<String, (Sender<usize>, Receiver<usize>)>>>;
+pub type ProgChannels = Mutex<HashMap<String, (Sender<usize>, Receiver<usize>)>>;
 
-pub static TEMPLATES: Templates = Templates { t: OnceCell::new() };
-pub static SAVE_DIR: Lazy<String> = Lazy::new(|| String::from("./files"));
-pub static PROG_CH_LIST: ProgChListType = OnceCell::new();
+struct AppState {
+    save_dir: String,
+    templates: Mutex<Tera>,
+    prog_channels: ProgChannels,
+}
+
+impl AppState {
+    async fn templates_new() -> Result<Tera, Box<dyn Error>> {
+        let tera = Tera::new("templates/*.html")?;
+        Ok(tera)
+    }
+}
 
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about=None)]
@@ -39,32 +47,9 @@ struct Args {
     port: u16,
 }
 
-pub struct Templates {
-    t: OnceCell<Mutex<Tera>>,
-}
-
-impl Templates {
-    async fn update(&self) -> Result<(), Box<dyn Error>> {
-        let tera = match Tera::new("templates/*.html") {
-            Ok(t) => t,
-            Err(e) => return Err(Box::new(e)),
-        };
-        {
-            if self.t.get().is_none() {
-                self.t.set(Mutex::new(tera)).unwrap();
-            } else {
-                let mut t = self.t.get().unwrap().lock().await;
-                *t = tera;
-            }
-        }
-        Ok(())
-    }
-}
-
-async fn check_dir_exists() -> Result<(), Box<dyn Error>> {
-    let save_dir = SAVE_DIR.clone();
+async fn check_dir_exists(save_dir: &String) -> Result<(), Box<dyn Error>> {
     if !Path::new(&save_dir).exists() {
-        if let Err(e) = fs::create_dir(&save_dir) {
+        if let Err(e) = fs::create_dir(save_dir) {
             return Err(Box::new(e));
         }
         event!(
@@ -85,13 +70,16 @@ async fn main() {
         .compact()
         .init();
 
-    TEMPLATES.update().await.unwrap();
-    PROG_CH_LIST.set(Mutex::new(HashMap::new())).unwrap();
+    let app_state = Arc::new(AppState {
+        save_dir: String::from("./files"),
+        templates: Mutex::new(AppState::templates_new().await.unwrap()),
+        prog_channels: Mutex::new(HashMap::new()),
+    });
 
     let args = Args::parse();
     event!(Level::INFO, "The following args were received: {:?}", args);
 
-    check_dir_exists().await.unwrap();
+    check_dir_exists(&app_state.save_dir).await.unwrap();
 
     let assets_service = get_service(ServeDir::new("assets")).handle_error(|e| async move {
         (StatusCode::NOT_FOUND, format!("asset not found: {}", e))
@@ -111,7 +99,8 @@ async fn main() {
                 .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
                 .on_response(trace::DefaultOnResponse::new().level(Level::INFO)),
         )
-        .layer(DefaultBodyLimit::max(1024 * 1024 * 1024 * 100)); // 100 GiB (tabun)
+        .layer(DefaultBodyLimit::max(1024 * 1024 * 1024 * 100)) // 100 GiB (tabun)
+        .with_state(app_state);
 
     event!(Level::INFO, "Listening on 0.0.0.0:{}", args.port);
     let listener = TcpListener::bind(format!("0.0.0.0:{}", args.port))
