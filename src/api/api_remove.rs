@@ -1,13 +1,13 @@
-use std::path::Path;
+use std::{path::Path, sync::Arc};
 
-use axum::http::StatusCode;
+use axum::{extract::State, http::StatusCode};
 use tokio::fs;
 use tracing::{event, Level};
 
-use crate::SAVE_DIR;
+use crate::AppState;
 
-pub async fn remove(filename: String) -> StatusCode {
-    let path = Path::new(&SAVE_DIR.clone()).join(&filename);
+pub async fn remove(State(app_state): State<Arc<AppState>>, filename: String) -> StatusCode {
+    let path = Path::new(&app_state.save_dir).join(&filename);
     if !path.exists() {
         return StatusCode::BAD_REQUEST;
     }

@@ -1,9 +1,11 @@
-use axum::response::Html;
+use std::sync::Arc;
+
+use axum::{extract::State, response::Html};
 use serde::Serialize;
 use tera::Context;
 use tokio::fs;
 
-use crate::TEMPLATES;
+use crate::AppState;
 
 #[derive(Debug, Serialize)]
 struct FileItem {
@@ -11,7 +13,7 @@ struct FileItem {
     path: String,
 }
 
-pub async fn root() -> Html<String> {
+pub async fn root(State(app_state): State<Arc<AppState>>) -> Html<String> {
     let mut entries = fs::read_dir("./files").await.unwrap();
     let mut file_list_vec: Vec<FileItem> = vec![];
     while let Some(file) = entries.next_entry().await.unwrap() {
@@ -24,10 +26,8 @@ pub async fn root() -> Html<String> {
     let mut context = Context::new();
     context.insert("file_list", &file_list_vec);
 
-    let view = TEMPLATES
-        .t
-        .get()
-        .unwrap()
+    let view = app_state
+        .templates
         .lock()
         .await
         .render("root.html", &context)
