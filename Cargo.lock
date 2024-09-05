@@ -405,7 +405,6 @@ dependencies = [
  "base64",
  "clap",
  "futures-util",
- "once_cell",
  "serde",
  "tera",
  "tokio",

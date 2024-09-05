@@ -1,7 +1,7 @@
-use std::{io::ErrorKind, time::Duration};
+use std::{io::ErrorKind, sync::Arc, time::Duration};
 
 use axum::{
-    extract::Query,
+    extract::{Query, State},
     response::{sse::Event, Sse},
 };
 use futures_util::stream::Stream;
@@ -10,7 +10,7 @@ use tokio::sync::broadcast::{self};
 use tokio_stream::{wrappers::BroadcastStream, StreamExt as _};
 use tracing::{event, Level};
 
-use crate::PROG_CH_LIST;
+use crate::AppState;
 
 #[derive(Deserialize)]
 pub struct FilenameQuery {
@@ -18,14 +18,14 @@ pub struct FilenameQuery {
 }
 
 pub async fn progress(
+    State(app_state): State<Arc<AppState>>,
     Query(filename): Query<FilenameQuery>,
 ) -> Sse<impl Stream<Item = Result<Event, axum::Error>>> {
     let (original_tx, original_rx) = broadcast::channel(2);
     let rx = original_tx.subscribe();
     {
-        PROG_CH_LIST
-            .get()
-            .unwrap()
+        app_state
+            .prog_channels
             .lock()
             .await
             .insert(filename.filename.clone(), (original_tx, original_rx));
