@@ -1,3 +1,4 @@
+use axum::Json;
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -6,4 +7,4 @@ pub struct FileDetails {
     creation_time: String,
 }
 
-pub async fn details() {}
+pub async fn details(filename: String) -> Json<FileDetails> {}
