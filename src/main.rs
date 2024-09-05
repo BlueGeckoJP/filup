@@ -94,6 +94,7 @@ async fn main() {
         .route("/api/upload", post(api_upload::upload))
         .route("/api/remove", post(api_remove::remove))
         .route("/api/progress", get(api_progress::progress))
+        .route("/api/details", post(api_details::details))
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))

@@ -42,6 +42,34 @@ function onChangeUploadFile() {
     const uploadFilename = document.getElementById("upload-filename");
     uploadFilename.innerHTML = uploadInput.files[0].name;
 }
+function onClickOpenButton(element) {
+    const parentId = element.parentNode.parentNode.parentNode
+        .id;
+    let itemBottomContainer = document.querySelector(`#${parentId} #item-bottom-container`);
+    if (itemBottomContainer.style.height !== "auto") {
+        const filename = document.querySelector(`#${parentId} .item-filename`).innerHTML;
+        let itemFilesize = document.querySelector(`#${parentId} #item-filesize`);
+        let itemCreationTime = document.querySelector(`#${parentId} #item-creation-time`);
+        if (itemFilesize.innerHTML === "" && itemCreationTime.innerHTML === "") {
+            fetch("/api/details", {
+                method: "POST",
+                body: filename,
+            })
+                .then((e) => e.json())
+                .then((data) => {
+                itemFilesize.innerHTML = data.size;
+                itemCreationTime.innerHTML = data.creation_time;
+                itemBottomContainer.style.height = "auto";
+            });
+        }
+        else {
+            itemBottomContainer.style.height = "auto";
+        }
+    }
+    else {
+        itemBottomContainer.style.height = "0";
+    }
+}
 function onClickDownloadButton(filepath) {
     let element = document.createElement("a");
     element.href = filepath;
@@ -50,7 +78,8 @@ function onClickDownloadButton(filepath) {
 }
 function onClickRemoveButton(element) {
     if (confirm("Are you sure you want to delete this file?")) {
-        const parentId = element.parentNode.parentNode.id;
+        const parentId = element.parentNode.parentNode.parentNode
+            .id;
         const filename = document.querySelector(`#${parentId} .item-filename`).innerHTML;
         fetch("/api/remove", {
             method: "POST",

@@ -130,15 +130,30 @@ body {
 .item {
   display: flex;
   padding: 8px;
-  border-bottom: 1px solid var(--third-color);
+  margin-bottom: 8px;
+  border: 1px solid var(--third-color);
+  border-radius: 15px;
+  flex-direction: column;
 }
 
-.item:last-of-type {
-  border-bottom: none;
+.item:first-of-type {
+  margin-top: 8px;
+}
+
+#item-top-container {
+  display: flex;
 }
 
 .item-buttons {
   display: flex;
+}
+
+.item-open-button {
+  background-color: var(--first-color);
+  color: var(--fourth-color);
+  border: none;
+  outline: none;
+  appearance: none;
 }
 
 .item-download-button {
@@ -160,6 +175,27 @@ body {
 .item-filename {
   margin: 0;
   margin-left: 5px;
+}
+
+#item-bottom-container {
+  width: 100%;
+  height: 0;
+  overflow: hidden;
+}
+
+#item-details-table {
+  width: 100%;
+  border-top: 1px solid var(--third-color);
+  margin-top: 5px;
+  padding-top: 2px;
+}
+
+#item-details-table p {
+  margin: 0;
+}
+
+.item-details-desc {
+  width: 125px;
 }
 
 #notfound-msg {
