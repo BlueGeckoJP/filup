@@ -13,10 +13,16 @@ struct FileItem {
     path: String,
 }
 
-pub async fn root(State(app_state): State<Arc<AppState>>) -> Html<String> {
-    let mut entries = fs::read_dir("./files").await.unwrap();
+pub async fn root(State(app_state): State<Arc<AppState>>) -> Result<Html<String>, String> {
+    let mut entries = fs::read_dir("./files")
+        .await
+        .map_err(|e| format!("Could not retrieve file list: {}", e))?;
     let mut file_list_vec: Vec<FileItem> = vec![];
-    while let Some(file) = entries.next_entry().await.unwrap() {
+    while let Some(file) = entries
+        .next_entry()
+        .await
+        .map_err(|e| format!("Error retrieving next file entry: {}", e))?
+    {
         let filename = file.file_name().to_string_lossy().to_string();
         let path = format!("/files/{}", filename);
         let item = FileItem { filename, path };
@@ -32,5 +38,5 @@ pub async fn root(State(app_state): State<Arc<AppState>>) -> Html<String> {
         .await
         .render("root.html", &context)
         .expect("Failed to load TEMPLATES (root.html)");
-    Html(view)
+    Ok(Html(view))
 }

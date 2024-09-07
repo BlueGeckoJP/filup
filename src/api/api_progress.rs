@@ -39,7 +39,18 @@ pub async fn progress(
     let stream = BroadcastStream::new(rx)
         .timeout(Duration::from_secs(10))
         .map(|msg| match msg {
-            Ok(message) => Ok(Event::default().data(message.unwrap().to_string())),
+            Ok(message) => Ok(Event::default().data({
+                match message {
+                    Ok(message) => message,
+                    Err(e) => {
+                        return Err(axum::Error::new(std::io::Error::new(
+                            ErrorKind::Other,
+                            format!("BroadcastStreamRecvError: {}", e),
+                        )))
+                    }
+                }
+                .to_string()
+            })),
             Err(e) => Err(axum::Error::new(std::io::Error::new(
                 ErrorKind::Other,
                 format!("Error receiving message: {}", e),

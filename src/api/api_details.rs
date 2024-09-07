@@ -1,6 +1,6 @@
 use std::{os::unix::fs::MetadataExt, sync::Arc};
 
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{extract::State, Json};
 use chrono::{DateTime, Local};
 use serde::Serialize;
 use tokio::fs;
@@ -16,19 +16,16 @@ pub struct FileDetails {
 pub async fn details(
     State(app_state): State<Arc<AppState>>,
     filename: String,
-) -> Result<Json<FileDetails>, (StatusCode, String)> {
+) -> Result<Json<FileDetails>, String> {
     if filename.is_empty() {
-        return Err((
-            StatusCode::BAD_REQUEST,
-            "The filename pallameter is empty".to_string(),
-        ));
+        return Err("The filename (body) is empty".to_string());
     }
 
     println!("{}/{}", &app_state.save_dir, filename);
 
     let metadata = match fs::metadata(format!("{}/{}", &app_state.save_dir, filename)).await {
         Ok(metadata) => metadata,
-        Err(e) => return Err((StatusCode::BAD_REQUEST, format!("File not found: {}", e))),
+        Err(e) => return Err(format!("File does not exist: {}", e)),
     };
 
     let kib = 1024f64;
@@ -41,7 +38,11 @@ pub async fn details(
         x => format!("{} B", x),
     };
 
-    let created_time = DateTime::<Local>::from(metadata.created().unwrap());
+    let created_time = DateTime::<Local>::from(
+        metadata
+            .created()
+            .map_err(|e| format!("Could not retrieve file creation date/time: {}", e))?,
+    );
     let readable_created_time = created_time.format("%Y/%m/%d %H:%M:%S %Z").to_string();
 
     Ok(Json(FileDetails {
