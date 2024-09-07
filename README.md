@@ -2,7 +2,9 @@
 
 # Filup: シンプルなファイル共有ソフト
 FilupはLAN内で簡単にファイルを共有するために作ったアプリです
+
 **ネットワーク上で公開して使用することを想定していない(仕様やセキュリティなどなど)のでネットワーク上で使用しないことを強くおすすめします**
+
 このソフトウェアは趣味で作っているものなのでエラーがあったりコードが汚かったり、アプリの動作が不安定だったりします ご了承ください
 
 ## 依存関係
@@ -22,6 +24,7 @@ tracing-subscriber = "0.3.18"
 ```
 
 TypeScriptのファイルをJavaScriptにトランスパイルする際に使用するもの:
+
 (最初からトランスパイルしたものをアップロードしているので**必須ではない**です)
 ```
 pnpm, typescript
@@ -42,7 +45,9 @@ pnpm, typescript
 
 # Filup: Simple file sharing software
 Filup is a file sharing software designed for easy file exchange within a LAN
+
 **It is not intended to be used openly on a network (software specifications, security, etc.), so we recommend not using it!**
+
 This software is **a hobby**, so there may be errors and the code may be difficult to read
 
 ## Requirements (Dependencies)
