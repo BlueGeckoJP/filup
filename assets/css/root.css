@@ -32,6 +32,10 @@ body {
   height: 100vh;
 }
 
+td > p {
+  margin: 0;
+}
+
 #top {
   display: flex;
   flex-direction: column;
@@ -195,6 +199,54 @@ body {
 }
 
 .item-details-desc {
+  width: 125px;
+}
+
+#item-hash-container {
+  border: 1px solid var(--third-color);
+  border-radius: 15px;
+  padding: 8px;
+}
+
+.item-hash-table-div {
+  overflow-x: auto;
+}
+
+.item-hash-table-div::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.item-hash-table-div::-webkit-scrollbar-thumb {
+  background-color: var(--second-color);
+}
+
+.item-hash-table-div::-webkit-scrollbar-track {
+  background-color: var(--third-color);
+}
+
+.item-hash-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.item-hash-desc-container {
+  display: flex;
+}
+
+.item-hash-desc-container p {
+  margin: 0;
+}
+
+.item-hash-reload-button {
+  background-color: var(--first-color);
+  color: var(--fourth-color);
+  border: none;
+  outline: none;
+  appearance: none;
+}
+
+.item-hash-desc {
   width: 125px;
 }
 
