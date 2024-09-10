@@ -96,6 +96,22 @@ function onClickRemoveButton(element) {
         });
     }
 }
+function onClickHashReloadButton(element) {
+    var _a, _b;
+    const parentId = element.parentNode.parentNode.parentNode.parentNode.id;
+    const filename = document.querySelector(`#${parentId} .item-filename`).innerHTML;
+    let sha256HashElement = document.querySelector(`#${parentId} #${((_a = element.parentNode) === null || _a === void 0 ? void 0 : _a.parentNode).id} .item-sha256-hash p`);
+    let ripemd160HashElement = document.querySelector(`#${parentId} #${((_b = element.parentNode) === null || _b === void 0 ? void 0 : _b.parentNode).id} .item-ripemd160-hash p`);
+    fetch("/api/hash", {
+        method: "POST",
+        body: filename,
+    })
+        .then((e) => e.json())
+        .then((data) => {
+        sha256HashElement.innerHTML = data.sha256;
+        ripemd160HashElement.innerHTML = data.ripemd160;
+    });
+}
 function uploadDropHandler(event) {
     event.preventDefault();
     const fakeUploadInput = document.getElementById("fake-upload-input");

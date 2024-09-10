@@ -97,6 +97,29 @@
                   <td><p id="item-creation-time" class="item-details"></p></td>
                 </tr>
               </table>
+              <div id="item-hash-container">
+                <div class="item-hash-desc-container">
+                  <button
+                    class="item-hash-reload-button"
+                    onclick="onClickHashReloadButton(this)"
+                  >
+                    <i class="fa-solid fa-rotate"></i>
+                  </button>
+                  <p>ファイルのハッシュ値</p>
+                </div>
+                <div class="item-hash-table-div">
+                  <table class="item-hash-table">
+                    <tr>
+                      <td class="item-hash-desc"><p>SHA256</p></td>
+                      <td class="item-sha256-hash"><p>未取得</p></td>
+                    </tr>
+                    <tr>
+                      <td class="item-hash-desc"><p>RIPEMD-160</p></td>
+                      <td class="item-ripemd160-hash"><p>未取得</p></td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
           {% endfor %}

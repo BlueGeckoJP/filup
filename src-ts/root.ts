@@ -122,6 +122,36 @@ function onClickRemoveButton(element: HTMLElement) {
   }
 }
 
+function onClickHashReloadButton(element: HTMLElement) {
+  const parentId = (
+    element.parentNode!.parentNode!.parentNode!.parentNode as HTMLElement
+  ).id;
+  const filename = document.querySelector(
+    `#${parentId} .item-filename`
+  )!.innerHTML;
+
+  let sha256HashElement = document.querySelector(
+    `#${parentId} #${
+      (element.parentNode?.parentNode as HTMLElement).id
+    } .item-sha256-hash p`
+  ) as HTMLElement;
+  let ripemd160HashElement = document.querySelector(
+    `#${parentId} #${
+      (element.parentNode?.parentNode as HTMLElement).id
+    } .item-ripemd160-hash p`
+  ) as HTMLElement;
+
+  fetch("/api/hash", {
+    method: "POST",
+    body: filename,
+  })
+    .then((e) => e.json())
+    .then((data) => {
+      sha256HashElement.innerHTML = data.sha256;
+      ripemd160HashElement.innerHTML = data.ripemd160;
+    });
+}
+
 function uploadDropHandler(event: DragEvent) {
   event.preventDefault();
 
