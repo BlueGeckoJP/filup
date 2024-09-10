@@ -21,8 +21,6 @@ pub async fn details(
         return Err("The filename (body) is empty".to_string());
     }
 
-    println!("{}/{}", &app_state.save_dir, filename);
-
     let metadata = match fs::metadata(format!("{}/{}", &app_state.save_dir, filename)).await {
         Ok(metadata) => metadata,
         Err(e) => return Err(format!("File does not exist: {}", e)),
