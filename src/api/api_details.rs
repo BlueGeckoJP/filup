@@ -5,7 +5,7 @@ use chrono::{DateTime, Local};
 use serde::Serialize;
 use tokio::fs;
 
-use crate::AppState;
+use crate::{path_check, AppState};
 
 #[derive(Serialize, Default)]
 pub struct FileDetails {
@@ -21,7 +21,13 @@ pub async fn details(
         return Err("The filename (body) is empty".to_string());
     }
 
-    let metadata = match fs::metadata(format!("{}/{}", &app_state.save_dir, filename)).await {
+    let metadata = match fs::metadata(
+        path_check(&app_state.save_dir, &filename)
+            .await
+            .map_err(|e| e.to_string())?,
+    )
+    .await
+    {
         Ok(metadata) => metadata,
         Err(e) => return Err(format!("File does not exist: {}", e)),
     };

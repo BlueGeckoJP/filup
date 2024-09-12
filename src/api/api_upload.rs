@@ -8,7 +8,7 @@ use base64::{engine::general_purpose, Engine};
 use tokio::{fs::File, io::AsyncWriteExt, sync::broadcast::Sender};
 use tracing::{event, Level};
 
-use crate::AppState;
+use crate::{path_check, AppState};
 
 pub async fn upload(
     State(app_state): State<Arc<AppState>>,
@@ -45,9 +45,13 @@ pub async fn upload(
 
         event!(Level::INFO, "Starting upload: {}", filename);
 
-        let mut file = File::create(format!("{}/{}", &app_state.save_dir, filename))
-            .await
-            .map_err(|e| format!("An error occurred while creating the file: {}", e))?;
+        let mut file = File::create(
+            path_check(&app_state.save_dir, &filename)
+                .await
+                .map_err(|e| e.to_string())?,
+        )
+        .await
+        .map_err(|e| format!("An error occurred while creating the file: {}", e))?;
 
         while let Some(chunk) = field.chunk().await.map_err(|e| {
             format!(

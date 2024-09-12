@@ -10,7 +10,14 @@ use axum::{
 };
 use clap::Parser;
 use route::*;
-use std::{collections::HashMap, error::Error, fs, path::Path, sync::Arc};
+use std::{
+    collections::HashMap,
+    error::Error,
+    ffi::OsStr,
+    fs, io,
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 use tera::Tera;
 use tokio::{
     net::TcpListener,
@@ -60,6 +67,36 @@ async fn check_dir_exists(save_dir: &String) -> Result<(), Box<dyn Error>> {
     }
     event!(Level::INFO, "Directory exists check complete!");
     Ok(())
+}
+
+pub async fn path_check<S: AsRef<OsStr> + ?Sized>(
+    save_dir: &String,
+    s: &S,
+) -> Result<PathBuf, Box<dyn Error>> {
+    let original_path = Path::new(s);
+    event!(
+        Level::INFO,
+        "Path check: In - {}",
+        &original_path.to_string_lossy()
+    );
+
+    let filename = match original_path.file_name() {
+        Some(filename) => filename,
+        None => {
+            return Err(Box::new(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                format!(
+                    "Could not retrieve file name: {}",
+                    &original_path.to_string_lossy()
+                ),
+            )));
+        }
+    };
+
+    let path = Path::new(save_dir).join(filename);
+    event!(Level::INFO, "Path check: Out - {}", &path.to_string_lossy());
+
+    Ok(path)
 }
 
 #[instrument]
