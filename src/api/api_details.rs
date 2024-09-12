@@ -21,13 +21,11 @@ pub async fn details(
         return Err("The filename (body) is empty".to_string());
     }
 
-    let metadata = match fs::metadata(
-        path_check(&app_state.save_dir, &filename)
-            .await
-            .map_err(|e| e.to_string())?,
-    )
-    .await
-    {
+    let path = path_check(&app_state.save_dir, &filename)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let metadata = match fs::metadata(path).await {
         Ok(metadata) => metadata,
         Err(e) => return Err(format!("File does not exist: {}", e)),
     };

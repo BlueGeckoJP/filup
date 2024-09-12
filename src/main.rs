@@ -30,7 +30,7 @@ use tower_http::{
     services::ServeDir,
     trace::{self, TraceLayer},
 };
-use tracing::{event, instrument, Level};
+use tracing::{event, instrument, span, Level};
 
 pub type ProgChannels = Mutex<HashMap<String, (Sender<usize>, Receiver<usize>)>>;
 
@@ -55,6 +55,8 @@ struct Args {
 }
 
 async fn check_dir_exists(save_dir: &String) -> Result<(), Box<dyn Error>> {
+    let _span = span!(Level::INFO, "check_dir_exists").entered();
+
     if !Path::new(&save_dir).exists() {
         if let Err(e) = fs::create_dir(save_dir) {
             return Err(Box::new(e));
@@ -73,16 +75,15 @@ pub async fn path_check<S: AsRef<OsStr> + ?Sized>(
     save_dir: &String,
     s: &S,
 ) -> Result<PathBuf, Box<dyn Error>> {
+    let _span = span!(Level::INFO, "path_check").entered();
+
     let original_path = Path::new(s);
-    event!(
-        Level::INFO,
-        "Path check: In - {}",
-        &original_path.to_string_lossy()
-    );
+    event!(Level::INFO, "In - {}", &original_path.to_string_lossy());
 
     let filename = match original_path.file_name() {
         Some(filename) => filename,
         None => {
+            event!(Level::WARN, "Error - {}", &original_path.to_string_lossy());
             return Err(Box::new(io::Error::new(
                 io::ErrorKind::InvalidInput,
                 format!(
@@ -94,7 +95,7 @@ pub async fn path_check<S: AsRef<OsStr> + ?Sized>(
     };
 
     let path = Path::new(save_dir).join(filename);
-    event!(Level::INFO, "Path check: Out - {}", &path.to_string_lossy());
+    event!(Level::INFO, "Out - {}", &path.to_string_lossy());
 
     Ok(path)
 }
@@ -102,10 +103,7 @@ pub async fn path_check<S: AsRef<OsStr> + ?Sized>(
 #[instrument]
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt()
-        .with_target(false)
-        .compact()
-        .init();
+    tracing_subscriber::fmt().with_target(false).init();
 
     let app_state = Arc::new(AppState {
         save_dir: String::from("./files"),

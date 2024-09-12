@@ -43,15 +43,15 @@ pub async fn upload(
             encoded_filename
         );
 
-        event!(Level::INFO, "Starting upload: {}", filename);
+        let path = path_check(&app_state.save_dir, &filename)
+            .await
+            .map_err(|e| e.to_string())?;
 
-        let mut file = File::create(
-            path_check(&app_state.save_dir, &filename)
-                .await
-                .map_err(|e| e.to_string())?,
-        )
-        .await
-        .map_err(|e| format!("An error occurred while creating the file: {}", e))?;
+        event!(Level::INFO, "Starting upload: {}", &path.to_string_lossy());
+
+        let mut file = File::create(path.clone())
+            .await
+            .map_err(|e| format!("An error occurred while creating the file: {}", e))?;
 
         while let Some(chunk) = field.chunk().await.map_err(|e| {
             format!(
@@ -65,7 +65,7 @@ pub async fn upload(
             tx.send(chunk.len())
                 .map_err(|e| format!("Could not send message to Progress API side: {}", e))?;
         }
-        event!(Level::INFO, "Finished upload: {}", filename);
+        event!(Level::INFO, "Finished upload: {}", &path.to_string_lossy());
     }
     Ok(StatusCode::OK)
 }

@@ -22,29 +22,37 @@ pub async fn hash(
     State(app_state): State<Arc<AppState>>,
     filename: String,
 ) -> Result<Json<Hashes>, String> {
-    event!(Level::INFO, "Hash API: Opening file: {}", &filename);
-    let mut file = BufReader::new(
-        File::open(
-            path_check(&app_state.save_dir, &filename)
-                .await
-                .map_err(|e| e.to_string())?,
-        )
+    let path = path_check(&app_state.save_dir, &filename)
         .await
-        .map_err(|e| format!("An error occurred while opening file: {}", e))?,
+        .map_err(|e| e.to_string())?;
+
+    event!(
+        Level::INFO,
+        "Hash API: Opening file: {}",
+        &path.to_string_lossy()
+    );
+    let mut file = BufReader::new(
+        File::open(path.clone())
+            .await
+            .map_err(|e| format!("An error occurred while opening file: {}", e))?,
     );
     let mut file_buf = vec![];
     file.read_to_end(&mut file_buf)
         .await
         .map_err(|e| format!("An error occurred while reading file: {}", e))?;
 
-    event!(Level::INFO, "Hash API: Generating SHA256: {}", &filename);
+    event!(
+        Level::INFO,
+        "Hash API: Generating SHA256: {}",
+        &path.to_string_lossy()
+    );
     let sha256_hash = Sha256::digest(&file_buf);
     let sha256_str = format!("{:x}", sha256_hash);
 
     event!(
         Level::INFO,
         "Hash API: Generating RIPEMD-160: {}",
-        &filename
+        &path.to_string_lossy()
     );
     let mut ripemd160_hasher = Ripemd160::new();
     ripemd160_hasher.update(&file_buf);
